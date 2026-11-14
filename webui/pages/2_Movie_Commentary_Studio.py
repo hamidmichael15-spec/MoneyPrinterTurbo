@@ -17,7 +17,7 @@ import edge_tts
 import numpy as np
 import streamlit as st
 from PIL import Image, ImageDraw, ImageFont
-from moviepy import AudioFileClip, CompositeAudioClip, ImageClip, VideoFileClip
+from moviepy import AudioFileClip, CompositeAudioClip, ImageClip, VideoFileClip, afx
 
 from app.services import llm
 from app.utils import utils
@@ -131,7 +131,9 @@ def _render_video(
             audio_tracks.append(original)
         if music_path:
             music = AudioFileClip(music_path)
-            music = music.subclipped(0, min(music.duration, duration)).with_volume_scaled(music_volume)
+            music = music.with_volume_scaled(music_volume)
+            # Loop short music beds so the background track covers the full clip.
+            music = music.with_effects([afx.AudioLoop(duration=duration)])
             audio_tracks.append(music)
         mixed_audio = CompositeAudioClip(audio_tracks).with_duration(duration)
         overlays = _caption_clips(script, duration)
@@ -193,6 +195,8 @@ with st.expander("Audio controls", expanded=True):
 
 if "movie_commentary_script" not in st.session_state:
     st.session_state.movie_commentary_script = ""
+if "movie_commentary_editor" not in st.session_state:
+    st.session_state.movie_commentary_editor = ""
 
 col_a, col_b = st.columns(2)
 with col_a:
@@ -202,6 +206,7 @@ with col_b:
 
 if clear_script:
     st.session_state.movie_commentary_script = ""
+    st.session_state.movie_commentary_editor = ""
 if generate_script:
     if not scene_notes.strip():
         st.error("Please describe what happens in the clip first.")
@@ -222,12 +227,12 @@ if generate_script:
             )
         if result and not result.startswith("Error:"):
             st.session_state.movie_commentary_script = result.strip()
+            st.session_state.movie_commentary_editor = result.strip()
         else:
             st.error("Commentary generation failed. Check the LLM provider and model settings.")
 
 script = st.text_area(
     "4. Review and edit the narration",
-    value=st.session_state.movie_commentary_script,
     height=180,
     key="movie_commentary_editor",
     placeholder="Your generated narration will appear here. You can edit it before creating the video.",
