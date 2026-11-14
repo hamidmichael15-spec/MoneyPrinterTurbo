@@ -18,11 +18,11 @@ This MVP does **not** automatically understand the uploaded video's visual conte
 
 ## Launch
 
-Run MoneyPrinterTurbo as usual. Streamlit discovers this page from \`webui/pages/\` when the main WebUI is launched:
+Run MoneyPrinterTurbo as usual. Streamlit discovers this page from `webui/pages/` when the main WebUI is launched:
 
-\`\`\`bash
+```bash
 sh webui.sh
-\`\`\`
+```
 
 Open the **Movie Commentary Studio** page from the Streamlit page navigation.
 
