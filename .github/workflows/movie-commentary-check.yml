@@ -1,0 +1,24 @@
+name: Movie Commentary Studio checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - feature/movie-commentary-mvp
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile the Movie Commentary Studio page
+        run: python -m py_compile webui/pages/2_Movie_Commentary_Studio.py
