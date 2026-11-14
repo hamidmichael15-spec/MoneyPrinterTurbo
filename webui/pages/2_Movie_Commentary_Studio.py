@@ -17,7 +17,7 @@ import edge_tts
 import numpy as np
 import streamlit as st
 from PIL import Image, ImageDraw, ImageFont
-from moviepy import AudioFileClip, CompositeAudioClip, ImageClip, VideoFileClip, afx
+from moviepy import AudioFileClip, CompositeAudioClip, ImageClip, VideoFileClip
 
 from app.services import llm
 from app.utils import utils
@@ -25,7 +25,6 @@ from app.utils import utils
 MAX_UPLOAD_BYTES = 250 * 1024 * 1024
 VIDEO_TYPES = ["mp4", "mov", "mkv", "webm", "m4v"]
 AUDIO_TYPES = ["mp3", "wav", "m4a", "aac", "ogg", "flac"]
-DEFAULT_VOICE = "en-US-AriaNeural"
 
 
 def _safe_name(name: str, fallback: str) -> str:
@@ -121,14 +120,14 @@ def _render_video(
     final = None
     try:
         video = _make_vertical(source)
-        duration = min(float(video.duration), float(narration.duration))
+        duration = float(video.duration)
         if duration <= 0:
             raise ValueError("The uploaded clip or generated narration has no usable duration.")
         video = video.subclipped(0, duration)
         narration = narration.subclipped(0, min(narration.duration, duration)).with_volume_scaled(1.0)
         audio_tracks = [narration]
         if source.audio is not None and original_volume > 0:
-            original = source.audio.subclipped(0, min(source.duration, duration)).with_volume_scaled(original_volume)
+            original = source.audio.subclipped(0, min(source.audio.duration, duration)).with_volume_scaled(original_volume)
             audio_tracks.append(original)
         if music_path:
             music = AudioFileClip(music_path)
